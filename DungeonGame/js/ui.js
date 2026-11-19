@@ -1,13 +1,15 @@
-// 文字、按钮与覆盖层；不负责战斗推进。
-import { game } from "./state.js";
-// showOverlay：本模块功能函数。
-export function showOverlay(title,text,button){
-  document.getElementById('overlayTitle').textContent=title;
-  document.getElementById('overlayText').textContent=text;
-  document.getElementById('resume').textContent=button;
-  document.getElementById('overlay').hidden=false;
+// v0.3.3：所有操作集中在菜单；战斗中仅保留精简状态和右上角暂停键。
+import { game } from './state.js';
+export function showOverlay(title, text, button) {
+  const ready = game.state === 'ready';
+  document.getElementById('overlayTitle').textContent = ready ? '微光地牢' : title;
+  document.getElementById('overlayText').textContent = ready ? '生存 60 秒，再清空房间' : text;
+  document.getElementById('resume').textContent = ready ? '开始游戏' : button;
+  // 死亡/胜利时主按钮已是重新挑战，不显示重复按钮。
+  document.getElementById('reset').hidden = game.state !== 'playing';
+  document.getElementById('overlay').hidden = false;
 }
-// updateHUD：本模块功能函数。
-export function updateHUD(){
-  document.getElementById('stats').textContent=`生命 ${game.player.hp}/100 · 击败 ${game.kills} · ${game.elapsed<60?'剩余 '+Math.ceil(60-game.elapsed)+' 秒':'清除剩余 '+(game.enemies.length+game.spawns.length)+' 个敌人'}`;
+export function updateHUD() {
+  const progress = game.elapsed < 60 ? `${Math.ceil(60 - game.elapsed)}s` : `剩余 ${game.enemies.length + game.spawns.length}`;
+  document.getElementById('stats').textContent = `♥ ${game.player.hp}  ·  ${progress}  ·  击败 ${game.kills}`;
 }

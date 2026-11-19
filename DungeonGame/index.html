@@ -3,21 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>微光地牢 · 战斗原型</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#263932">
+<title>微光地牢</title>
 <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-<main>
- <header><div><div class="eyebrow">LITTLE DUNGEON / 001</div><h1>微光地牢 <small>第二、三步 · 战斗与敌人</small></h1></div><span class="badge">v0.3.1 · 模块化版</span></header>
- <section class="stage" aria-label="游戏区域">
-  <canvas id="game" tabindex="0" aria-label="使用 WASD 或方向键移动，鼠标瞄准"></canvas>
-  <div class="hud"><strong>01 / 生存试炼</strong><span><span id="stats">生命 100 / 100 · 击败 0 · 60 秒</span></span></div>
-  <div id="overlay" class="overlay" hidden><strong id="overlayTitle">一分钟试炼</strong><span id="overlayText">生存 60 秒，然后清除剩余敌人</span><button id="resume">继续游戏</button></div>
- </section>
- <div class="touch-controls"><div><div id="movePad" class="pad" aria-label="移动摇杆"><i class="knob"></i></div><span class="pad-label">移动</span></div><div><div id="aimPad" class="pad" aria-label="瞄准摇杆"><i class="knob"></i></div><span class="pad-label">瞄准 / 射击</span></div></div>
- <div class="footer"><div class="tips"><kbd>W A S D</kbd> / <kbd>方向键</kbd> 移动　·　鼠标瞄准 / 按住左键射击　·　<kbd>Esc</kbd> 暂停<br>触屏：左摇杆移动，右摇杆瞄准并自动射击。</div><div class="actions"><button id="reset">重新开始</button><button id="pause">暂停</button></div></div>
- <p class="note">绿色追击怪：红圈预警后近战 · 紫色射手：瞄准线锁定后发射 · 橙色冲锋怪：蓄力后直线冲刺。掩体可以挡住子弹；生存 60 秒并清场即可胜利。</p>
+<main id="playScreen" class="stage" aria-label="微光地牢">
+  <div class="arena">
+    <canvas id="game" tabindex="0" aria-label="游戏画面"></canvas>
+    <div class="touch-controls">
+      <div id="movePad" class="pad" aria-label="移动摇杆"><i class="knob"></i></div>
+      <div id="aimPad" class="pad" aria-label="瞄准与射击摇杆"><i class="knob"></i></div>
+    </div>
+  </div>
+  <div class="hud"><span id="stats">♥ 100 · 60s</span></div>
+  <button id="pause" aria-label="打开暂停菜单" title="暂停">暂停</button>
+  <div id="overlay" class="overlay" hidden>
+    <section class="menu" aria-label="游戏菜单">
+      <strong id="overlayTitle">微光地牢</strong>
+      <span id="overlayText">准备开始</span>
+      <span class="rotate-tip">请横置手机游玩</span>
+      <button id="resume">开始游戏</button>
+      <button id="reset" hidden>重新开始</button>
+      <button id="fullscreen" hidden>进入全屏</button>
+      <span id="screenHint" aria-live="polite"></span>
+    </section>
+  </div>
 </main>
-<script type="module" src="./js/main.js"></script>
+<script type="module" src="./js/immersive.js"></script>
 </body>
 </html>
