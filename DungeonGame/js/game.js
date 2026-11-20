@@ -1,4 +1,5 @@
 // 每帧更新的协调器，保持原版更新顺序。
+import { updateCoins } from './coins.js';
 import { updateWeapons } from "./weapons.js";
 import { game } from "./state.js";
 import { updateMovement } from "./player.js";
@@ -33,6 +34,7 @@ export function update(dt){
   }
   if(game.state==='playing')updateBullets(dt);
   game.enemies=game.enemies.filter(e=>e.hp>0);
+  updateCoins(dt);
   game.effects.forEach(f=>{
     f.life-=dt;f.y-=dt*22;
   }

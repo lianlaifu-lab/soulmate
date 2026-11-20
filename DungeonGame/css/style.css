@@ -68,3 +68,13 @@ button[hidden], [hidden] { display: none !important; }
   /* 竖屏右摇杆仍在画布中，切枪位于屏幕底部，不会重叠。 */
   #aimPad { right:max(16px,env(safe-area-inset-right)); }
 }
+
+/* v0.5.0：全视口画布、浮动摇杆及金币 */
+.arena {inset:0;left:0;top:0;transform:none;width:100%;height:100%;aspect-ratio:auto;}
+canvas {aspect-ratio:auto;}
+.touch-controls {display:block;}
+.pad, #movePad, #aimPad {position:fixed;left:0;top:0;right:auto;bottom:auto;width:104px;height:104px;pointer-events:none;opacity:0;}
+.pad.active {opacity:1;}
+.coin-panel {position:absolute;z-index:2;right:calc(max(12px,env(safe-area-inset-right)) + 56px);top:calc(max(10px,env(safe-area-inset-top)) + 52px);display:flex;align-items:center;gap:7px;background:#14251fd9;padding:5px 10px;border-radius:9px;pointer-events:none;font-size:14px;font-variant-numeric:tabular-nums;}
+.coin-icon {display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#ffd45a;color:#a46818;border:2px solid #b77c25;font-weight:bold;box-shadow:inset 0 0 0 2px #ffe89b;}
+.stage {user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}

@@ -15,7 +15,7 @@ globalThis.document = {
   addEventListener: listen,
   getElementById(id) {
     if (!elements.has(id)) elements.set(id, {
-      hidden: true, style: {}, classList:{toggle(){}}, setAttribute(key,value){this[key]=value;}, clientWidth: 960, clientHeight: 600,
+      hidden: true, style: {}, classList:{toggle(){},add(){},remove(){}}, setAttribute(key,value){this[key]=value;}, clientWidth: 960, clientHeight: 600,
       getContext: () => context, addEventListener: listen,
       querySelector: () => ({ style: {} }), focus: noop,
     });
@@ -140,4 +140,29 @@ test('重开恢复手枪、拾取点和血条；低血量动态显示', () => {
   assert.equal(document.getElementById('weaponName').textContent,'连发枪');
   reset();updateHUD();assert.equal(document.getElementById('healthFill').style.width,'100%');
   assert.equal(document.getElementById('weaponName').textContent,'手枪');assert.equal(weaponState().pickups.length,2);
+});
+
+const {dropCoins,updateCoins,COIN_CONFIG}=await import('../js/coins.js');
+const {hurtEnemy}=await import('../js/combat.js');
+const {camera,screenToWorld}=await import('../js/viewport.js');
+test('金币数量上下界、范围、不可落进墙体；死亡仅掉落一次',()=>{
+ init();dropCoins({x:480,y:440},()=>0);assert.equal(game.coins.length,2);
+ init();dropCoins({x:480,y:440},()=>.999999);assert.equal(game.coins.length,6);
+ for(const c of game.coins){assert.ok(Math.hypot(c.x-480,c.y-440)<=COIN_CONFIG.scatter);assert.equal(collides(c.x,c.y,5),false);}
+ init();const e=makeEnemy('melee',480,440);hurtEnemy(e,1000);const count=game.coins.length;hurtEnemy(e,1000);assert.equal(game.coins.length,count);
+});
+test('吸附拾取只计数一次，暂停停止，重开清零',()=>{
+ init();game.coins=[{x:530,y:440,phase:0}];game.paused=true;updateCoins(1);assert.equal(game.coins[0].x,530);
+ game.paused=false;updateCoins(1);assert.equal(game.gold,1);assert.equal(game.coins.length,0);updateCoins(1);assert.equal(game.gold,1);
+ reset();assert.equal(game.gold,0);assert.equal(game.coins.length,0);
+});
+test('金币不会隔墙吸附',()=>{
+ init();game.player.x=210;game.player.y=220;game.coins=[{x:320,y:220,phase:0}];updateCoins(1);assert.equal(game.gold,0);assert.equal(game.coins[0].x,320);
+});
+test('宽屏、竖屏、电脑视口均等比覆盖，鼠标坐标逆变换正确',()=>{
+ init();for(const [width,height] of [[852,393],[393,852],[1920,1080],[960,600]]){
+ const c=camera(width,height);assert.ok(960*c.scale>=width);assert.ok(600*c.scale>=height);
+ assert.ok(c.x>=0&&c.y>=0);assert.ok(c.x+width/c.scale<=960.0001);assert.ok(c.y+height/c.scale<=600.0001);
+ const point=screenToWorld((480-c.x)*c.scale,(440-c.y)*c.scale,{left:0,top:0,width,height});assert.ok(Math.abs(point.x-480)<1e-8);assert.ok(Math.abs(point.y-440)<1e-8);
+ }
 });

@@ -1,4 +1,5 @@
 // 弹丸生成、敌我伤害及命中去重。
+import { dropCoins } from './coins.js';
 import { game } from "./state.js";
 import { CONFIG } from "./config.js";
 import { distance } from "./math.js";
@@ -25,6 +26,7 @@ export function hurtEnemy(e,damage){
   );
   if(e.hp===0){
     e.state='dead';
+    dropCoins(e);
     game.kills++;
     game.effects.push({
       x:e.x,y:e.y,text:'✦',life:.45,color:e.color

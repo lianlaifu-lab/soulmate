@@ -12,6 +12,7 @@ export function showOverlay(title,text,button){
 }
 export function updateHUD(){
   document.getElementById('stats').textContent=game.elapsed<60?`${Math.ceil(60-game.elapsed)}s · 击败 ${game.kills}`:`清场 ${game.enemies.length+game.spawns.length}`;
+  document.getElementById('coinCount').textContent=String(game.gold||0);
   const max=game.player.maxHp||100,hp=Math.max(0,Math.min(max,game.player.hp)),ratio=hp/max;
   const panel=document.getElementById('healthPanel');
   panel.setAttribute('aria-valuemax',String(max));panel.setAttribute('aria-valuenow',String(hp));

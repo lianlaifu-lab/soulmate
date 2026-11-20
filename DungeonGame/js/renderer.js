@@ -1,3 +1,6 @@
+import { camera } from './viewport.js';
+import { drawCoins } from './coins.js';
+import { drawMonster } from './monsters.js';
 import { weaponState, drawWeapon, drawPickups } from './weapons.js';
 // 画面绘制；不在绘制阶段修改生命值、位置或战斗计时。
 import { game } from "./state.js";
@@ -110,7 +113,11 @@ export function circle(x,y,r,color){
 }
 // draw：本模块功能函数。
 export function draw(){
+  const c=camera(canvas.clientWidth,canvas.clientHeight);
+  const dpr=canvas.width/canvas.clientWidth;
+  ctx.setTransform(c.scale*dpr,0,0,c.scale*dpr,-c.x*c.scale*dpr,-c.y*c.scale*dpr);
   drawRoom();
+  drawCoins(ctx);
   drawPickups(ctx);
   for(const p of game.spawns){
     ctx.strokeStyle='#edd6a5';
@@ -146,19 +153,9 @@ export function draw(){
     }
     circle(e.x,e.y+9,17,'#09150e66');
     const c=e.flash>0?'#ffffff':e.color;
-    rect(e.x-13,e.y-19,26,29,'#182a29');
-    rect(e.x-11,e.y-18,22,23,c);
-    rect(e.x-7,e.y-11,5,5,'#24322c');
-    rect(e.x+3,e.y-11,5,5,'#24322c');
-    if(e.type==='charger'){
-      rect(e.x-17,e.y-24,6,12,c);
-      rect(e.x+11,e.y-24,6,12,c);
-    }
-    if(e.type==='ranged'){
-      circle(e.x,e.y-25,5,c);
-    }
-    rect(e.x-17,e.y-36,34,4,'#182620');
-    rect(e.x-17,e.y-36,34*e.hp/e.maxHp,4,c);
+    drawMonster(ctx,e,game.clock);
+    rect(e.x-17,e.y-46,34,4,'#182620');
+    rect(e.x-17,e.y-46,34*e.hp/e.maxHp,4,c);
   }
   for(const b of game.bullets){
     circle(b.x,b.y,b.radius+3,b.faction==='player'?'#e5eaae22':'#e59cec33');

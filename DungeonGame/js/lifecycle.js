@@ -1,4 +1,5 @@
 // 开始、暂停、死亡与胜利；与输入事件绑定分离。
+import { resetCoins } from './coins.js';
 import { resetWeapons } from "./weapons.js";
 import { game, clearInput } from "./state.js";
 import { canvas } from "./dom.js";
@@ -22,6 +23,7 @@ export function reset(){
   );
   game.player.maxHp=100;
   resetWeapons();
+  resetCoins();
   game.enemies=[];
   game.bullets=[];
   game.effects=[];

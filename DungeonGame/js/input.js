@@ -1,3 +1,4 @@
+import { screenToWorld } from './viewport.js';
 // v0.3.2：每个控件独立跟踪 pointerId，支持双指同时移动和射击。
 import { switchWeapon } from './weapons.js';
 import { game, clearInput } from './state.js';
@@ -14,56 +15,41 @@ function releaseCapture(element, id) {
   } catch { /* 触点已不存在，无需进一步操作。 */ }
 }
 
-export function setupPad(id, type) {
-  const el = document.getElementById(id);
-  const knob = el.querySelector('.knob');
-  let active = null;
-
-  function release() {
-    const previous = active;
-    active = null; // 先清除归属，避免 lostpointercapture 再入。
-    game.input[type] = { x: 0, y: 0 };
-    knob.style.transform = 'translate(0px, 0px)';
-    releaseCapture(el, previous);
+export function setupPad(id,type){
+  const el=document.getElementById(id),knob=el.querySelector('.knob');
+  const stage=document.getElementById('playScreen');
+  let active=null,origin={x:0,y:0};
+  function release(){
+    const previous=active;active=null;game.input[type]={x:0,y:0};
+    el.classList.remove('active');knob.style.transform='translate(0px, 0px)';
+    releaseCapture(stage,previous);
   }
-
-  function change(e) {
-    const r = el.getBoundingClientRect();
-    // 行程随控件尺寸调整，横屏缩小时不会出现摇杆脱离底座。
-    const travel = Math.max(1, (Math.min(r.width, r.height) - knob.offsetWidth) / 2 - 8);
-    let x = (e.clientX - r.left - r.width / 2) / travel;
-    let y = (e.clientY - r.top - r.height / 2) / travel;
-    const length = Math.hypot(x, y);
-    if (length > 1) { x /= length; y /= length; }
-    if (length < 0.12) { x = 0; y = 0; }
-    game.input[type] = { x, y };
-    if (type === 'aim') game.input.mouse = null;
-    knob.style.transform = `translate(${x * travel}px, ${y * travel}px)`;
+  function change(e){
+    const travel=28;
+    let dx=e.clientX-origin.x,dy=e.clientY-origin.y,d=Math.hypot(dx,dy);
+    // 超过行程后底座也跟随，回拉时无需跨越很远的原始触点。
+    if(d>travel){origin.x=e.clientX-dx/d*travel;origin.y=e.clientY-dy/d*travel;dx=dx/d*travel;dy=dy/d*travel;d=travel;}
+    const x=d<4?0:dx/travel,y=d<4?0:dy/travel;
+    game.input[type]={x,y};if(type==='aim')game.input.mouse=null;
+    el.style.left=`${origin.x-52}px`;el.style.top=`${origin.y-52}px`;
+    knob.style.transform=`translate(${x*travel}px, ${y*travel}px)`;
   }
-
-  el.addEventListener('pointerdown', e => {
-    if (!playing() || active !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    e.preventDefault();
-    active = e.pointerId;
-    try { el.setPointerCapture(active); }
-    catch { release(); return; }
-    change(e);
-  }, { passive: false });
-
-  // 捕获使手指移出底座后仍然控制原摇杆；不能抢占另一个摇杆。
-  el.addEventListener('pointermove', e => {
-    if (e.pointerId !== active) return;
-    e.preventDefault();
-    if (!playing()) { release(); return; }
-    change(e);
-  }, { passive: false });
-
-  function end(e) { if (e.pointerId === active) release(); }
-  for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) el.addEventListener(event, end);
-  // 兜底：事件即使被派到其他元素，也按触点 ID 释放，不影响另一只手。
-  window.addEventListener('pointerup', end);
-  window.addEventListener('pointercancel', end);
-  el.addEventListener('contextmenu', e => e.preventDefault());
+  stage.addEventListener('pointerdown',e=>{
+    if(e.pointerType!=='touch'||!playing()||active!==null)return;
+    if(e.target?.closest?.('button, .overlay'))return;
+    const r=stage.getBoundingClientRect();
+    if((e.clientX<r.left+r.width/2)!==(type==='move'))return;
+    e.preventDefault();active=e.pointerId;origin={x:e.clientX,y:e.clientY};
+    try{stage.setPointerCapture(active);}catch{release();return;}
+    el.classList.add('active');change(e);
+  },{passive:false});
+  stage.addEventListener('pointermove',e=>{
+    if(e.pointerId!==active)return;
+    e.preventDefault();if(!playing()){release();return;}change(e);
+  },{passive:false});
+  function end(e){if(e.pointerId===active)release();}
+  for(const event of ['pointerup','pointercancel','lostpointercapture'])stage.addEventListener(event,end);
+  window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end);
   game.padResets.push(release);
 }
 
@@ -83,7 +69,7 @@ export function bindInput() {
   function pointMouse(e) {
     const r = canvas.getBoundingClientRect();
     if (!r.width || !r.height) return;
-    game.input.mouse = { x: (e.clientX - r.left) * 960 / r.width, y: (e.clientY - r.top) * 600 / r.height };
+    game.input.mouse = screenToWorld(e.clientX,e.clientY,r);
   }
   window.addEventListener('keydown', e => {
     if (movementKeys.has(e.code)) {
@@ -132,8 +118,12 @@ export function bindInput() {
   });
 
   const weaponButton=document.getElementById('switchWeapon');
-  weaponButton.addEventListener('pointerdown', e => e.stopPropagation());
-  weaponButton.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); switchWeapon(); });
+  weaponButton.addEventListener('pointerdown', e => {
+    e.preventDefault();e.stopPropagation();
+    if(e.pointerType!=='mouse'||e.button===0)switchWeapon();
+  },{passive:false});
+  // 指针已在按下时处理；只接受键盘/辅助技术产生的 click，避免重复切换。
+  weaponButton.addEventListener('click', e => {e.preventDefault();e.stopPropagation();if(e.detail===0)switchWeapon();});
   document.getElementById('pause').onclick = () => setPaused(!game.paused);
   document.getElementById('resume').onclick = () => {
     if (game.state === 'playing') setPaused(false); else reset();
