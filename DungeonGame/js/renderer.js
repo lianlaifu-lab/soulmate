@@ -1,3 +1,4 @@
+import { weaponState, drawWeapon, drawPickups } from './weapons.js';
 // 画面绘制；不在绘制阶段修改生命值、位置或战斗计时。
 import { game } from "./state.js";
 import { canvas, ctx } from "./dom.js";
@@ -83,9 +84,7 @@ export function drawRoom(){
   ctx.save();
   ctx.translate(game.player.x,game.player.y-3);
   ctx.rotate(game.player.angle);
-  rect(6,-5,22,10,'#172b28');
-  rect(11,-4,19,6,'#abbcaf');
-  rect(12,2,6,7,'#6d8269');
+  drawWeapon(ctx,weaponState().current,3,-12,.85);
   ctx.restore();
   const ax=game.player.x+Math.cos(game.player.angle)*65,ay=game.player.y+Math.sin(game.player.angle)*65;
   ctx.strokeStyle='#c9dd9b99';
@@ -112,6 +111,7 @@ export function circle(x,y,r,color){
 // draw：本模块功能函数。
 export function draw(){
   drawRoom();
+  drawPickups(ctx);
   for(const p of game.spawns){
     ctx.strokeStyle='#edd6a5';
     ctx.lineWidth=2;
@@ -162,7 +162,7 @@ export function draw(){
   }
   for(const b of game.bullets){
     circle(b.x,b.y,b.radius+3,b.faction==='player'?'#e5eaae22':'#e59cec33');
-    circle(b.x,b.y,b.radius,b.faction==='player'?'#f4ecaf':'#edabed');
+    circle(b.x,b.y,b.radius,b.faction==='player'?(b.color||'#f4ecaf'):'#edabed');
   }
   if(game.player.invincible>0){
     ctx.strokeStyle='#ffa6a0';

@@ -1,4 +1,5 @@
 // v0.3.2：每个控件独立跟踪 pointerId，支持双指同时移动和射击。
+import { switchWeapon } from './weapons.js';
 import { game, clearInput } from './state.js';
 import { canvas } from './dom.js';
 import { setPaused, reset } from './lifecycle.js';
@@ -89,6 +90,11 @@ export function bindInput() {
       e.preventDefault();
       if (playing()) game.keys.add(e.code);
     }
+    if (playing() && !e.repeat) {
+      if (e.code === 'KeyQ') { e.preventDefault(); switchWeapon(); }
+      const slots={Digit1:'pistol',Digit2:'shotgun',Digit3:'burst'};
+      if (slots[e.code]) { e.preventDefault(); switchWeapon(slots[e.code]); }
+    }
     if (e.code === 'Escape' && !e.repeat) setPaused(!game.paused);
   });
   window.addEventListener('keyup', e => game.keys.delete(e.code));
@@ -125,6 +131,9 @@ export function bindInput() {
     if (next !== landscape) { landscape = next; interrupt(); }
   });
 
+  const weaponButton=document.getElementById('switchWeapon');
+  weaponButton.addEventListener('pointerdown', e => e.stopPropagation());
+  weaponButton.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); switchWeapon(); });
   document.getElementById('pause').onclick = () => setPaused(!game.paused);
   document.getElementById('resume').onclick = () => {
     if (game.state === 'playing') setPaused(false); else reset();

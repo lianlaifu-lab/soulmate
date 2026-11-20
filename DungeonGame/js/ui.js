@@ -1,15 +1,29 @@
-// v0.3.3：所有操作集中在菜单；战斗中仅保留精简状态和右上角暂停键。
+// v0.4.0：动态血条与武器按钮。只有武器变化时才更新 SVG。
 import { game } from './state.js';
-export function showOverlay(title, text, button) {
-  const ready = game.state === 'ready';
-  document.getElementById('overlayTitle').textContent = ready ? '微光地牢' : title;
-  document.getElementById('overlayText').textContent = ready ? '生存 60 秒，再清空房间' : text;
-  document.getElementById('resume').textContent = ready ? '开始游戏' : button;
-  // 死亡/胜利时主按钮已是重新挑战，不显示重复按钮。
-  document.getElementById('reset').hidden = game.state !== 'playing';
-  document.getElementById('overlay').hidden = false;
+import { weaponState, currentWeapon, weaponSVG } from './weapons.js';
+let renderedWeapon='';
+export function showOverlay(title,text,button){
+  const ready=game.state==='ready';
+  document.getElementById('overlayTitle').textContent=ready?'微光地牢':title;
+  document.getElementById('overlayText').textContent=ready?'靠近地面武器拾取 · Q 或右下角按钮切换':text;
+  document.getElementById('resume').textContent=ready?'开始游戏':button;
+  document.getElementById('reset').hidden=game.state!=='playing';
+  document.getElementById('overlay').hidden=false;
 }
-export function updateHUD() {
-  const progress = game.elapsed < 60 ? `${Math.ceil(60 - game.elapsed)}s` : `剩余 ${game.enemies.length + game.spawns.length}`;
-  document.getElementById('stats').textContent = `♥ ${game.player.hp}  ·  ${progress}  ·  击败 ${game.kills}`;
+export function updateHUD(){
+  document.getElementById('stats').textContent=game.elapsed<60?`${Math.ceil(60-game.elapsed)}s · 击败 ${game.kills}`:`清场 ${game.enemies.length+game.spawns.length}`;
+  const max=game.player.maxHp||100,hp=Math.max(0,Math.min(max,game.player.hp)),ratio=hp/max;
+  const panel=document.getElementById('healthPanel');
+  panel.setAttribute('aria-valuemax',String(max));panel.setAttribute('aria-valuenow',String(hp));
+  document.getElementById('healthFill').style.width=`${ratio*100}%`;
+  document.getElementById('healthFill').style.background=ratio<=.3?'#fa626b':ratio<=.6?'#efbb67':'#8ed69a';
+  document.getElementById('healthValue').textContent=`${hp}/${max}`;
+  panel.classList.toggle('low',ratio<=.3);
+  const s=weaponState(),w=currentWeapon(),button=document.getElementById('switchWeapon');
+  if(renderedWeapon!==s.current){document.getElementById('weaponIcon').innerHTML=weaponSVG(s.current);renderedWeapon=s.current;}
+  document.getElementById('weaponName').textContent=w.name;
+  document.getElementById('weaponCount').textContent=`${s.owned.indexOf(s.current)+1}/${s.owned.length} ↻`;
+  button.setAttribute('aria-label',`当前${w.name}，点击切换已拾取武器`);
+  button.disabled=game.state!=='playing'||game.paused;
+  const notice=document.getElementById('weaponNotice');notice.textContent=s.noticeTime>0?s.notice:'';notice.hidden=s.noticeTime<=0||game.state!=='playing'||game.paused;
 }

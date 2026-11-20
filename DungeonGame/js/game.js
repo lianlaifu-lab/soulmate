@@ -1,4 +1,5 @@
 // 每帧更新的协调器，保持原版更新顺序。
+import { updateWeapons } from "./weapons.js";
 import { game } from "./state.js";
 import { updateMovement } from "./player.js";
 import { shoot, updateBullets } from "./combat.js";
@@ -11,11 +12,7 @@ export function update(dt){
   game.elapsed+=dt;
   updateMovement(dt);
   game.player.invincible=Math.max(0,game.player.invincible-dt);
-  game.player.shot=Math.max(0,game.player.shot-dt);
-  if((game.firing||Math.hypot(game.input.aim.x,game.input.aim.y)>.2)&&game.player.shot<=0){
-    shoot(game.player,game.player.angle,'player');
-    game.player.shot=.18;
-  }
+  updateWeapons(dt, shoot);
   game.navTimer-=dt;
   if(game.navTimer<=0){
     buildFlow();

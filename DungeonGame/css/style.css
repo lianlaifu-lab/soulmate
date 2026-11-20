@@ -44,3 +44,27 @@ button[hidden], [hidden] { display: none !important; }
   .menu strong { font-size: 21px; }
   .hud { font-size: 11px; padding: 6px 8px; }
 }
+
+/* v0.4.0：血量与切换按钮；暂停键仍独立位于最右上角。 */
+.health-panel { position:absolute; z-index:2; top:max(10px, env(safe-area-inset-top)); right:calc(max(12px, env(safe-area-inset-right)) + 56px); height:46px; display:flex; align-items:center; gap:7px; padding:6px 10px; border-radius:10px; background:#14251fd9; pointer-events:none; }
+.heart { color:#f17c86; font-size:23px; }
+.health-track { width:clamp(64px,14vw,150px); height:11px; border-radius:8px; overflow:hidden; background:#071c16; border:1px solid #668b6d; }
+.health-fill { width:100%; height:100%; background:#8ed69a; transition:width .14s linear,background .14s linear; }
+#healthValue { font-size:11px; font-variant-numeric:tabular-nums; min-width:43px; }
+.health-panel.low .heart { color:#ff5266; }
+.weapon-switch { position:absolute; z-index:3; right:max(12px,env(safe-area-inset-right)); bottom:max(12px,env(safe-area-inset-bottom)); width:80px; min-height:78px; display:flex; flex-direction:column; align-items:center; gap:1px; padding:5px 8px; background:#183329d9; border-color:#91ae75; touch-action:manipulation; }
+#weaponIcon { display:block; width:42px; height:31px; }
+#weaponIcon svg { display:block; width:100%; height:100%; }
+#weaponName { font-size:11px; }
+#weaponCount { font-size:10px; color:#b8cba7; }
+.weapon-switch:disabled { opacity:.45; cursor:default; }
+.weapon-notice { position:absolute; z-index:2; left:50%; top:max(64px,calc(env(safe-area-inset-top) + 58px)); transform:translateX(-50%); padding:6px 12px; border-radius:8px; background:#10251dcc; color:#dceac6; font-size:12px; pointer-events:none; white-space:nowrap; }
+/* 给右下角切枪留出一列，避免覆盖右摇杆触摸区域。 */
+#aimPad { right:calc(max(16px,env(safe-area-inset-right)) + 88px); }
+@media(max-width:600px) and (orientation:portrait) {
+  .health-panel { gap:4px; padding:6px; }
+  .health-track { width:64px; }
+  .hud { top:calc(max(12px,env(safe-area-inset-top)) + 50px); font-size:10px; }
+  /* 竖屏右摇杆仍在画布中，切枪位于屏幕底部，不会重叠。 */
+  #aimPad { right:max(16px,env(safe-area-inset-right)); }
+}

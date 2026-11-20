@@ -7,7 +7,7 @@ class Surface {
     this.style = {}; this.offsetWidth = 40; this.knob = { offsetWidth: 40, style: {} };
   }
   addEventListener(type, fn) { const list = this.listeners.get(type) || []; list.push(fn); this.listeners.set(type, list); }
-  emit(type, props = {}) { const e = { pointerType: 'touch', pointerId: 1, button: 0, clientX: 56, clientY: 56, preventDefault() {}, ...props }; for (const fn of this.listeners.get(type) || []) fn(e); }
+  emit(type, props = {}) { const e = { pointerType: 'touch', pointerId: 1, button: 0, clientX: 56, clientY: 56, preventDefault() {}, stopPropagation() {}, ...props }; for (const fn of this.listeners.get(type) || []) fn(e); }
   getBoundingClientRect() { return this.rect; }
   querySelector() { return this.knob; }
   setPointerCapture(id) { this.captures.add(id); }
@@ -96,4 +96,11 @@ test('持续一分钟双摇杆输入可完成计时，松手与重开都无残�
   assert.equal(game.state, 'won'); assert.equal(game.input.move.x, 0); assert.equal(game.input.aim.x, 0);
   assert.equal(left.captures.size + right.captures.size, 0);
   reset(); assert.equal(game.player.hp, 100); assert.equal(game.elapsed, 0);
+});
+
+test('右手按住瞄准时点击切枪，不影响左右摇杆归属', () => {
+  start();game.weaponState.owned.push('shotgun');press(left,21);press(right,22);
+  els.get('switchWeapon').emit('pointerdown',{pointerId:23});els.get('switchWeapon').emit('click',{pointerId:23});
+  assert.equal(game.weaponState.current,'shotgun');assert.equal(game.input.move.x,1);assert.equal(game.input.aim.x,1);
+  release(right,22);assert.equal(game.input.move.x,1);release(left,21);
 });

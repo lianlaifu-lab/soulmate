@@ -15,7 +15,7 @@ globalThis.document = {
   addEventListener: listen,
   getElementById(id) {
     if (!elements.has(id)) elements.set(id, {
-      hidden: true, style: {}, clientWidth: 960, clientHeight: 600,
+      hidden: true, style: {}, classList:{toggle(){}}, setAttribute(key,value){this[key]=value;}, clientWidth: 960, clientHeight: 600,
       getContext: () => context, addEventListener: listen,
       querySelector: () => ({ style: {} }), focus: noop,
     });
@@ -94,4 +94,50 @@ test('暂停清空输入；60 秒后清场获胜', () => {
   init(); game.keys.add('KeyW'); game.firing = true; setPaused(true);
   assert.equal(game.keys.size, 0); assert.equal(game.firing, false);
   init(); game.elapsed = 60; update(.01); assert.equal(game.state, 'won');
+});
+
+const { WEAPONS, weaponState, switchWeapon, updateWeapons } = await import('../js/weapons.js');
+const { updateHUD } = await import('../js/ui.js');
+test('开局手枪与两处拾取，重复触碰不会重复入包', () => {
+  init(); assert.deepEqual(weaponState().owned, ['pistol']);
+  game.player.x=370;game.player.y=440;updateWeapons(.02,shoot);
+  assert.equal(weaponState().current,'shotgun');assert.equal(weaponState().pickups.length,1);
+  updateWeapons(.02,shoot);assert.equal(weaponState().owned.length,2);
+  game.player.x=590;updateWeapons(.02,shoot);assert.equal(weaponState().current,'burst');
+  assert.deepEqual(weaponState().owned,['pistol','shotgun','burst']);
+});
+test('三种武器分别产生一发、六颗散弹和三次定时连射', () => {
+  for (const [id,count] of [['pistol',1],['shotgun',6],['burst',3]]) {
+    init();weaponState().owned=['pistol','shotgun','burst'];weaponState().current=id;
+    game.firing=true;updateWeapons(.01,shoot);
+    assert.equal(game.bullets.length,id==='shotgun'?6:1);
+    game.firing=false;updateWeapons(.085,shoot);updateWeapons(.085,shoot);
+    assert.equal(game.bullets.length,count);
+    assert.ok(game.bullets.every(b=>b.damage===WEAPONS[id].damage&&b.faction==='player'));
+    if(id==='shotgun')assert.equal(new Set(game.bullets.map(b=>b.dx+','+b.dy)).size,6);
+  }
+});
+test('短射程散弹与较远射程手枪、连发枪', () => {
+  assert.ok(WEAPONS.shotgun.speed*WEAPONS.shotgun.maxLife<WEAPONS.pistol.speed*WEAPONS.pistol.maxLife);
+  assert.ok(WEAPONS.shotgun.speed*WEAPONS.shotgun.maxLife<WEAPONS.burst.speed*WEAPONS.burst.maxLife);
+});
+test('切枪只循环已拾取武器；锁定武器不可装备；暂停不可切换', () => {
+  init();assert.equal(switchWeapon('burst'),false);
+  weaponState().owned.push('shotgun');switchWeapon();assert.equal(weaponState().current,'shotgun');
+  switchWeapon();assert.equal(weaponState().current,'pistol');
+  setPaused(true);assert.equal(switchWeapon(),false);assert.equal(weaponState().current,'pistol');
+});
+test('切枪不重置冷却，并取消未完成的连射', () => {
+  init();weaponState().owned=['pistol','burst'];weaponState().current='burst';game.firing=true;
+  updateWeapons(.01,shoot);const cooldown=game.player.shot;switchWeapon('pistol');
+  assert.ok(game.player.shot>=cooldown);assert.equal(weaponState().pending,0);
+  game.firing=false;updateWeapons(.2,shoot);assert.equal(game.bullets.length,1);
+});
+test('重开恢复手枪、拾取点和血条；低血量动态显示', () => {
+  init();weaponState().owned.push('burst');weaponState().current='burst';game.player.hp=25;updateHUD();
+  assert.equal(document.getElementById('healthFill').style.width,'25%');
+  assert.equal(document.getElementById('healthPanel')['aria-valuenow'],'25');
+  assert.equal(document.getElementById('weaponName').textContent,'连发枪');
+  reset();updateHUD();assert.equal(document.getElementById('healthFill').style.width,'100%');
+  assert.equal(document.getElementById('weaponName').textContent,'手枪');assert.equal(weaponState().pickups.length,2);
 });
