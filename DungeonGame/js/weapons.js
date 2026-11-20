@@ -1,6 +1,6 @@
 // v0.4.0：武器数值与简图唯一配置。icon 是 [x,y,width,height] 矩形数组。
-import { game } from './state.js';
-import { clearLine } from './room.js';
+import { game } from './state.js?v=0.5.1';
+import { clearLine } from './room.js?v=0.5.1';
 export const WEAPONS = {
   pistol: { name:'手枪', damage:12, speed:560, interval:.28, pellets:1, spread:0, maxLife:1.3, burst:1, burstGap:0, color:'#dbe8bc', icon:[[5,7,24,7],[8,14,8,11],[26,9,7,4]] },
   shotgun: { name:'霰弹枪', damage:5, speed:460, interval:.72, pellets:6, spread:.52, maxLife:.50, burst:1, burstGap:0, color:'#e8b878', icon:[[2,11,9,8],[10,8,26,5],[16,13,11,5],[10,17,5,6]] },

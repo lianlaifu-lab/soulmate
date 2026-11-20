@@ -1,9 +1,9 @@
 // 开始、暂停、死亡与胜利；与输入事件绑定分离。
-import { resetCoins } from './coins.js';
-import { resetWeapons } from "./weapons.js";
-import { game, clearInput } from "./state.js";
-import { canvas } from "./dom.js";
-import { showOverlay } from "./ui.js";
+import { resetCoins } from './coins.js?v=0.5.1';
+import { resetWeapons } from "./weapons.js?v=0.5.1";
+import { game, clearInput } from "./state.js?v=0.5.1";
+import { canvas } from "./dom.js?v=0.5.1";
+import { showOverlay } from "./ui.js?v=0.5.1";
 // setPaused：本模块功能函数。
 export function setPaused(value){
   if(game.state!=='playing')return;

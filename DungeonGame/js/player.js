@@ -1,7 +1,7 @@
 // 玩家移动与瞄准。
-import { game } from "./state.js";
-import { CONFIG } from "./config.js";
-import { collides } from "./room.js";
+import { game } from "./state.js?v=0.5.1";
+import { CONFIG } from "./config.js?v=0.5.1";
+import { collides } from "./room.js?v=0.5.1";
 // movePlayer：本模块功能函数。
 export function movePlayer(dx,dy){
   const steps=Math.max(1,Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/3));

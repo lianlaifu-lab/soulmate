@@ -6,8 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#263932">
-<title>微光地牢 · v0.5.0</title>
-<link rel="stylesheet" href="./css/style.css">
+<title>微光地牢 · v0.5.1</title>
+<link rel="stylesheet" href="./css/style.css?v=0.5.1">
 </head>
 <body>
 <main id="playScreen" class="stage" aria-label="微光地牢">
@@ -26,18 +26,32 @@
   <button id="switchWeapon" class="weapon-switch" aria-label="切换武器"><span id="weaponIcon"></span><span id="weaponName">手枪</span><small id="weaponCount">1/1 ↻</small></button>
   <div id="weaponNotice" class="weapon-notice" aria-live="polite"></div>
   <button id="pause" aria-label="打开暂停菜单" title="暂停">暂停</button>
-  <div id="overlay" class="overlay" hidden>
+  <div id="overlay" class="overlay">
     <section class="menu" aria-label="游戏菜单">
+      <small id="buildVersion" class="build-version">v0.5.1 · 正在加载</small>
       <strong id="overlayTitle">微光地牢</strong>
-      <span id="overlayText">准备开始</span>
+      <span id="overlayText">正在加载游戏…</span>
       <span class="rotate-tip">请横置手机游玩</span>
-      <button id="resume">开始游戏</button>
+      <button id="resume" disabled>开始游戏</button>
       <button id="reset" hidden>重新开始</button>
       <button id="fullscreen" hidden>进入全屏</button>
       <span id="screenHint" aria-live="polite"></span>
     </section>
   </div>
 </main>
-<script type="module" src="./js/immersive.js"></script>
+<script type="module">
+const build = document.getElementById('buildVersion');
+import('./js/immersive.js?v=0.5.1').then(() => {
+  build.textContent = 'v0.5.1 · 已加载';
+  document.getElementById('resume').disabled = false;
+}).catch(error => {
+  console.error('游戏加载失败', error);
+  build.textContent = 'v0.5.1 · 加载失败';
+  document.getElementById('overlay').hidden = false;
+  document.getElementById('overlayTitle').textContent = '游戏文件未完整加载';
+  document.getElementById('overlayText').textContent = '请通过 HTTP 地址打开，并完整替换 index.html、css 和 js 文件夹后刷新。';
+  document.getElementById('resume').disabled = true;
+});
+</script>
 </body>
 </html>

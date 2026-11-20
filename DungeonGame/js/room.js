@@ -1,6 +1,6 @@
 // 碰撞、视线检测与移动约束；房间布局在 config.js。
-import { CONFIG, solids } from "./config.js";
-import { clamp, distance } from "./math.js";
+import { CONFIG, solids } from "./config.js?v=0.5.1";
+import { clamp, distance } from "./math.js?v=0.5.1";
 // collides：本模块功能函数。
 export function collides(x,y,radius=CONFIG.radius){
   return solids.some(r=>{

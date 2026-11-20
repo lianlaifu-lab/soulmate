@@ -21,10 +21,10 @@ globalThis.window = windowSurface;
 const els = new Map(); const doc = new Surface(); doc.hidden = false;
 doc.getElementById = id => { if (!els.has(id)) els.set(id, new Surface()); return els.get(id); };
 globalThis.document = doc;
-const { game, clearInput } = await import('../js/state.js');
-const { bindInput } = await import('../js/input.js');
-const { reset, setPaused } = await import('../js/lifecycle.js');
-const { update } = await import('../js/game.js');
+const { game, clearInput } = await import('../js/state.js?v=0.5.1');
+const { bindInput } = await import('../js/input.js?v=0.5.1');
+const { reset, setPaused } = await import('../js/lifecycle.js?v=0.5.1');
+const { update } = await import('../js/game.js?v=0.5.1');
 bindInput();
 const stage=els.get('playScreen'),button=els.get('switchWeapon');
 stage.rect={left:0,top:0,width:900,height:400};
@@ -58,4 +58,28 @@ test('按钮区域不会启动摇杆；暂停释放所有捕获',()=>{
 test('取消、失去捕获、后台中断不会留下卡住的输入',()=>{
  for(const event of ['pointercancel','lostpointercapture']){start();down(1,120);move(1,160);stage.emit(event,{pointerId:1});assert.equal(game.input.move.x,0);}
  start();down(1,120);move(1,160);window.emit('blur');assert.equal(game.paused,true);assert.equal(game.input.move.x,0);
+});
+
+test('左手持续移动，右手松开射击后点击切枪，移动捕获保持有效',()=>{
+ start();game.weaponState.owned=['pistol','shotgun','burst'];
+ down(10,80,80);move(10,120,80);down(11,650,80);move(11,690,80);up(11);
+ button.emit('pointerdown',{pointerId:12,isPrimary:false});
+ assert.equal(game.weaponState.current,'shotgun');assert.equal(game.input.move.x,1);
+ assert.equal(game.input.aim.x,0);assert.ok(stage.hasPointerCapture(10));
+ const x=game.player.x;update(.05);assert.ok(game.player.x>x);
+ button.emit('click',{pointerId:12,detail:1});assert.equal(game.weaponState.current,'shotgun');
+ up(10);assert.equal(stage.captures.size,0);
+});
+
+test('横竖屏不同起手位置均能唤起对应摇杆，轻触不自动开火',()=>{
+ for(const [width,height] of [[393,852],[852,393],[1024,768]]){
+  stage.rect={left:0,top:0,width,height};
+  for(const y of [100,height-100]){
+   start();down(20,width*.2,y);down(21,width*.7,y);update(.01);
+   assert.equal(game.bullets.length,0);assert.equal(game.input.move.x,0);
+   move(20,width*.2+25,y);move(21,width*.7+25,y);update(.02);
+   assert.ok(game.player.x>480);assert.ok(game.bullets.length>0);up(20);up(21);
+  }
+ }
+ stage.rect={left:0,top:0,width:900,height:400};
 });

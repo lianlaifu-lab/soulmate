@@ -1,10 +1,10 @@
 // 敌人实例与状态机，AI 通过战斗模块产生伤害。
-import { game } from "./state.js";
-import { TYPES } from "./config.js";
-import { distance, direction } from "./math.js";
-import { clearLine, moveBody } from "./room.js";
-import { pursue } from "./navigation.js";
-import { shoot, hurtPlayer } from "./combat.js";
+import { game } from "./state.js?v=0.5.1";
+import { TYPES } from "./config.js?v=0.5.1";
+import { distance, direction } from "./math.js?v=0.5.1";
+import { clearLine, moveBody } from "./room.js?v=0.5.1";
+import { pursue } from "./navigation.js?v=0.5.1";
+import { shoot, hurtPlayer } from "./combat.js?v=0.5.1";
 // makeEnemy：本模块功能函数。
 export function makeEnemy(type,x,y){
   const t=TYPES[type];

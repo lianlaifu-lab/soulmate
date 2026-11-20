@@ -1,7 +1,7 @@
 // 障碍物绕行；仅在网格构建时读取房间碰撞数据。
-import { game } from "./state.js";
-import { clamp, direction } from "./math.js";
-import { collides, clearLine, moveBody } from "./room.js";
+import { game } from "./state.js?v=0.5.1";
+import { clamp, direction } from "./math.js?v=0.5.1";
+import { collides, clearLine, moveBody } from "./room.js?v=0.5.1";
 const CELL=20,COLS=48,ROWS=30,walkable=[],flow=new Int16Array(COLS*ROWS);
 for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)walkable[y*COLS+x]=!collides(x*CELL+10,y*CELL+10,16);
 // cellAt：本模块功能函数。

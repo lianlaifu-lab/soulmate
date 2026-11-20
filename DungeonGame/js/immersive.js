@@ -1,8 +1,8 @@
-// v0.3.3 新入口：先启动原主程序，再添加全屏能力；不改战斗和触控模块。
-import './main.js';
-import { game } from './state.js';
-import { setPaused } from './lifecycle.js';
-import { resize } from './renderer.js';
+// 先启动主程序，再同步可视高度与可选全屏能力。
+import './main.js?v=0.5.1';
+import { game } from './state.js?v=0.5.1';
+import { setPaused } from './lifecycle.js?v=0.5.1';
+import { resize } from './renderer.js?v=0.5.1';
 
 const screen = document.getElementById('playScreen');
 const fullButton = document.getElementById('fullscreen');

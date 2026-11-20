@@ -1,13 +1,13 @@
 // 每帧更新的协调器，保持原版更新顺序。
-import { updateCoins } from './coins.js';
-import { updateWeapons } from "./weapons.js";
-import { game } from "./state.js";
-import { updateMovement } from "./player.js";
-import { shoot, updateBullets } from "./combat.js";
-import { buildFlow } from "./navigation.js";
-import { queueWave } from "./waves.js";
-import { makeEnemy, updateEnemy } from "./enemies.js";
-import { finish } from "./lifecycle.js";
+import { updateCoins } from './coins.js?v=0.5.1';
+import { updateWeapons } from "./weapons.js?v=0.5.1";
+import { game } from "./state.js?v=0.5.1";
+import { updateMovement } from "./player.js?v=0.5.1";
+import { shoot, updateBullets } from "./combat.js?v=0.5.1";
+import { buildFlow } from "./navigation.js?v=0.5.1";
+import { queueWave } from "./waves.js?v=0.5.1";
+import { makeEnemy, updateEnemy } from "./enemies.js?v=0.5.1";
+import { finish } from "./lifecycle.js?v=0.5.1";
 // 战斗协调器：按固定顺序推进玩家、刷怪、AI、伤害与结算。
 export function update(dt){
   game.elapsed+=dt;

@@ -1,7 +1,7 @@
 // 刷怪计划；只负责排队，实际创建敌人在 game.js。
-import { game } from "./state.js";
-import { spawnPoints } from "./config.js";
-import { distance } from "./math.js";
+import { game } from "./state.js?v=0.5.1";
+import { spawnPoints } from "./config.js?v=0.5.1";
+import { distance } from "./math.js?v=0.5.1";
 // queueWave：本模块功能函数。
 export function queueWave(){
   game.wave++;

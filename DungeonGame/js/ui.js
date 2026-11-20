@@ -1,11 +1,11 @@
 // v0.4.0：动态血条与武器按钮。只有武器变化时才更新 SVG。
-import { game } from './state.js';
-import { weaponState, currentWeapon, weaponSVG } from './weapons.js';
+import { game } from './state.js?v=0.5.1';
+import { weaponState, currentWeapon, weaponSVG } from './weapons.js?v=0.5.1';
 let renderedWeapon='';
 export function showOverlay(title,text,button){
   const ready=game.state==='ready';
   document.getElementById('overlayTitle').textContent=ready?'微光地牢':title;
-  document.getElementById('overlayText').textContent=ready?'靠近地面武器拾取 · Q 或右下角按钮切换':text;
+  document.getElementById('overlayText').textContent=ready?'左半屏拖动移动 · 右半屏拖动射击 · 靠近武器拾取，右下角切枪':text;
   document.getElementById('resume').textContent=ready?'开始游戏':button;
   document.getElementById('reset').hidden=game.state!=='playing';
   document.getElementById('overlay').hidden=false;

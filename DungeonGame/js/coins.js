@@ -1,5 +1,5 @@
-import { game } from './state.js';
-import { clearLine, collides } from './room.js';
+import { game } from './state.js?v=0.5.1';
+import { clearLine, collides } from './room.js?v=0.5.1';
 export const COIN_CONFIG={min:2,max:6,scatter:42,magnet:110,speed:340,pickup:16};
 export function resetCoins(){game.coins=[];game.gold=0;}
 export function dropCoins(enemy,random=Math.random){

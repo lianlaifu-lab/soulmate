@@ -1,5 +1,5 @@
 // 等比铺满屏幕，超出视野的房间由跟随镜头展示。
-import { game } from './state.js';
+import { game } from './state.js?v=0.5.1';
 export function camera(width,height){
   const scale=Math.max(width/960,height/600);
   const w=width/scale,h=height/scale;

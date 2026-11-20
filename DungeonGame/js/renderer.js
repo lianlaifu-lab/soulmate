@@ -1,13 +1,13 @@
-import { camera } from './viewport.js';
-import { drawCoins } from './coins.js';
-import { drawMonster } from './monsters.js';
-import { weaponState, drawWeapon, drawPickups } from './weapons.js';
+import { camera } from './viewport.js?v=0.5.1';
+import { drawCoins } from './coins.js?v=0.5.1';
+import { drawMonster } from './monsters.js?v=0.5.1';
+import { weaponState, drawWeapon, drawPickups } from './weapons.js?v=0.5.1';
 // 画面绘制；不在绘制阶段修改生命值、位置或战斗计时。
-import { game } from "./state.js";
-import { canvas, ctx } from "./dom.js";
-import { walls, obstacles } from "./config.js";
-import { clamp } from "./math.js";
-import { updateHUD } from "./ui.js";
+import { game } from "./state.js?v=0.5.1";
+import { canvas, ctx } from "./dom.js?v=0.5.1";
+import { walls, obstacles } from "./config.js?v=0.5.1";
+import { clamp } from "./math.js?v=0.5.1";
+import { updateHUD } from "./ui.js?v=0.5.1";
 // rect：本模块功能函数。
 export function rect(x,y,w,h,c){
   ctx.fillStyle=c;

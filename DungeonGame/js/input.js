@@ -1,9 +1,9 @@
-import { screenToWorld } from './viewport.js';
+import { screenToWorld } from './viewport.js?v=0.5.1';
 // v0.3.2：每个控件独立跟踪 pointerId，支持双指同时移动和射击。
-import { switchWeapon } from './weapons.js';
-import { game, clearInput } from './state.js';
-import { canvas } from './dom.js';
-import { setPaused, reset } from './lifecycle.js';
+import { switchWeapon } from './weapons.js?v=0.5.1';
+import { game, clearInput } from './state.js?v=0.5.1';
+import { canvas } from './dom.js?v=0.5.1';
+import { setPaused, reset } from './lifecycle.js?v=0.5.1';
 
 let bound = false;
 const playing = () => game.state === 'playing' && !game.paused;

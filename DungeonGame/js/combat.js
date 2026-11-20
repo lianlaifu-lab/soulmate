@@ -1,10 +1,10 @@
 // 弹丸生成、敌我伤害及命中去重。
-import { dropCoins } from './coins.js';
-import { game } from "./state.js";
-import { CONFIG } from "./config.js";
-import { distance } from "./math.js";
-import { collides } from "./room.js";
-import { finish } from "./lifecycle.js";
+import { dropCoins } from './coins.js?v=0.5.1';
+import { game } from "./state.js?v=0.5.1";
+import { CONFIG } from "./config.js?v=0.5.1";
+import { distance } from "./math.js?v=0.5.1";
+import { collides } from "./room.js?v=0.5.1";
+import { finish } from "./lifecycle.js?v=0.5.1";
 // 创建弹丸；options 可覆盖速度、伤害、寿命及穿透设置。
 export function shoot(owner,angle,faction,options={
 }

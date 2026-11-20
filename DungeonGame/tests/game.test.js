@@ -24,20 +24,20 @@ globalThis.document = {
 };
 globalThis.window = { devicePixelRatio: 1, addEventListener: listen };
 globalThis.requestAnimationFrame = noop;
-const { game } = await import('../js/state.js');
-const { reset, setPaused } = await import('../js/lifecycle.js');
-const { shoot, updateBullets, hurtPlayer } = await import('../js/combat.js');
-const { makeEnemy, updateEnemy } = await import('../js/enemies.js');
-const { buildFlow, pursue } = await import('../js/navigation.js');
-const { collides } = await import('../js/room.js');
-const { updateMovement } = await import('../js/player.js');
-const { update } = await import('../js/game.js');
-const { draw, resize } = await import('../js/renderer.js');
+const { game } = await import('../js/state.js?v=0.5.1');
+const { reset, setPaused } = await import('../js/lifecycle.js?v=0.5.1');
+const { shoot, updateBullets, hurtPlayer } = await import('../js/combat.js?v=0.5.1');
+const { makeEnemy, updateEnemy } = await import('../js/enemies.js?v=0.5.1');
+const { buildFlow, pursue } = await import('../js/navigation.js?v=0.5.1');
+const { collides } = await import('../js/room.js?v=0.5.1');
+const { updateMovement } = await import('../js/player.js?v=0.5.1');
+const { update } = await import('../js/game.js?v=0.5.1');
+const { draw, resize } = await import('../js/renderer.js?v=0.5.1');
 function init() { reset(); game.nextWave = 999; }
 function advanceBullets() { for (let i = 0; i < 30; i++) updateBullets(.01); }
 
 test('主入口、全部依赖与绘制可加载', async () => {
-  await import('../js/main.js'); resize(); draw();
+  await import('../js/main.js?v=0.5.1'); resize(); draw();
   assert.equal(typeof listeners.get('keydown'), 'function');
 });
 test('斜向与横向移动速度一致，角色不能穿墙', () => {
@@ -96,8 +96,8 @@ test('暂停清空输入；60 秒后清场获胜', () => {
   init(); game.elapsed = 60; update(.01); assert.equal(game.state, 'won');
 });
 
-const { WEAPONS, weaponState, switchWeapon, updateWeapons } = await import('../js/weapons.js');
-const { updateHUD } = await import('../js/ui.js');
+const { WEAPONS, weaponState, switchWeapon, updateWeapons } = await import('../js/weapons.js?v=0.5.1');
+const { updateHUD } = await import('../js/ui.js?v=0.5.1');
 test('开局手枪与两处拾取，重复触碰不会重复入包', () => {
   init(); assert.deepEqual(weaponState().owned, ['pistol']);
   game.player.x=370;game.player.y=440;updateWeapons(.02,shoot);
@@ -142,9 +142,9 @@ test('重开恢复手枪、拾取点和血条；低血量动态显示', () => {
   assert.equal(document.getElementById('weaponName').textContent,'手枪');assert.equal(weaponState().pickups.length,2);
 });
 
-const {dropCoins,updateCoins,COIN_CONFIG}=await import('../js/coins.js');
-const {hurtEnemy}=await import('../js/combat.js');
-const {camera,screenToWorld}=await import('../js/viewport.js');
+const {dropCoins,updateCoins,COIN_CONFIG}=await import('../js/coins.js?v=0.5.1');
+const {hurtEnemy}=await import('../js/combat.js?v=0.5.1');
+const {camera,screenToWorld}=await import('../js/viewport.js?v=0.5.1');
 test('金币数量上下界、范围、不可落进墙体；死亡仅掉落一次',()=>{
  init();dropCoins({x:480,y:440},()=>0);assert.equal(game.coins.length,2);
  init();dropCoins({x:480,y:440},()=>.999999);assert.equal(game.coins.length,6);
@@ -164,5 +164,24 @@ test('宽屏、竖屏、电脑视口均等比覆盖，鼠标坐标逆变换正�
  const c=camera(width,height);assert.ok(960*c.scale>=width);assert.ok(600*c.scale>=height);
  assert.ok(c.x>=0&&c.y>=0);assert.ok(c.x+width/c.scale<=960.0001);assert.ok(c.y+height/c.scale<=600.0001);
  const point=screenToWorld((480-c.x)*c.scale,(440-c.y)*c.scale,{left:0,top:0,width,height});assert.ok(Math.abs(point.x-480)<1e-8);assert.ok(Math.abs(point.y-440)<1e-8);
+ }
+});
+
+test('击杀掉落金币→附近全部吸附→金币 HUD 增加→重开清零',()=>{
+ init();const enemy=makeEnemy('melee',510,440);game.enemies=[enemy];
+ hurtEnemy(enemy,enemy.hp);const count=game.coins.length;
+ assert.ok(count>=2&&count<=6);updateCoins(.3);updateHUD();
+ assert.equal(game.coins.length,0);assert.equal(game.gold,count);
+ assert.equal(document.getElementById('coinCount').textContent,String(count));
+ reset();updateHUD();assert.equal(document.getElementById('coinCount').textContent,'0');
+});
+
+test('靠墙击杀多次随机掉落均保持散落范围与可拾取路径',()=>{
+ let seed=123;const random=()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
+ for(const origin of [{x:54,y:54},{x:209,y:210},{x:480,y:359},{x:905,y:545}]){
+  for(let i=0;i<25;i++){
+   init();dropCoins(origin,random);assert.ok(game.coins.length>=2&&game.coins.length<=6);
+   for(const c of game.coins){assert.ok(Math.hypot(c.x-origin.x,c.y-origin.y)<=42.00001);assert.equal(collides(c.x,c.y,5),false);}
+  }
  }
 });
